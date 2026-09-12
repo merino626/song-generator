@@ -1,12 +1,16 @@
 # Vira Canção
 
-**A complete, working full-stack product that turns a personal story into an original song.** You tell a story, an LLM writes two lyric versions, you edit and pick one, an AI music engine records it with real vocals and instrumentation, and you pay for and download the finished track — all of it actually running end to end, not a mock-up.
+[🇧🇷 Ler em português](README.pt-BR.md)
 
-This started as a real commercial idea (a Brazilian competitor to an existing "personalized AI song" service) and became a portfolio project: same codebase, same integrations, same real payment processing — just presented as a demonstration rather than a business.
+**Tell a story, get back an original song — with real vocals, real instrumentation, and a real checkout.** A full-stack product built solo, end to end: wizard → AI lyrics → AI music production → payment → delivery, all actually running, not a mock-up.
 
 > ⚠️ **This deployment processes real payments** through the Stripe API. Completing checkout charges a real card and generates a real song. You don't need to pay to see the product work — lyrics are generated and freely editable before any charge happens.
 
 ---
+
+## Why this exists
+
+This started as a real commercial idea — a Brazilian competitor to an existing "personalized AI song" service — and I built the whole thing solo: product decisions, backend, frontend, payments, and the AI pipeline that turns a stranger's story into a finished track. It's now presented as a portfolio piece rather than a business, but nothing was stripped down to get here — same codebase, same integrations, same real payment processing that a paying customer would hit.
 
 ## What it actually does
 
@@ -58,9 +62,14 @@ No ORM, no heavy SDKs where a `fetch` call does the job — the crun.ai client a
 
 ```bash
 npm install
+cp .env.example .env.local   # fill in your own keys
 npm run dev
 ```
 
-Needs a `.env.local` with (at minimum) Supabase, Stripe **test-mode** credentials, and a crun.ai API key — the app degrades gracefully without most of these (payment and generation show a clear "not configured" state instead of crashing), but nothing meaningful works end to end without them. Database migrations live in `supabase/migrations/` and are applied with `node scripts/migrate.js <file>`.
+Needs (at minimum) Supabase, Stripe **test-mode** credentials, and a crun.ai API key — the app degrades gracefully without most of these (payment and generation show a clear "not configured" state instead of crashing), but nothing meaningful works end to end without them. Database migrations live in `supabase/migrations/` and are applied with `node scripts/migrate.js <file>`.
 
 Cloudflare Turnstile blocks headless/automated browsers by design (it's the whole point of the widget), which also means it blocks end-to-end testing tools like Playwright. Setting `NEXT_PUBLIC_TURNSTILE_TEST=1` swaps in Cloudflare's own always-pass demo keys — but only when `NEXT_PUBLIC_SITE_URL` points at `localhost`, so the flag can't accidentally disable the real gate in production.
+
+---
+
+Built solo by [@merino626](https://github.com/merino626).
