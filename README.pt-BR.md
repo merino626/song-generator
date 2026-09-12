@@ -1,16 +1,67 @@
+<div align="center">
+
+<img src="public/img/surpresa.jpg" alt="Vira Canção" width="120" style="border-radius: 12px" />
+
 # Vira Canção
 
-[🇺🇸 Read in English](README.md)
+**Um gerador de música por IA com fluxo de pagamento real — da história de um desconhecido até uma faixa pronta e cantada.**
 
-**Conta uma história, recebe de volta uma música original de verdade — com voz, instrumentação e um checkout real.** Um produto full-stack construído sozinho, de ponta a ponta: wizard → letra por IA → produção musical por IA → pagamento → entrega, tudo realmente funcionando, não é uma maquete.
+[![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Postgres-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Stripe](https://img.shields.io/badge/Stripe-PaymentIntents-635BFF?logo=stripe&logoColor=white)](https://stripe.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Cloudflare R2](https://img.shields.io/badge/Cloudflare-R2%20%2F%20Turnstile-F38020?logo=cloudflare&logoColor=white)](https://developers.cloudflare.com/r2/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+[🇺🇸 Read in English](README.md) · **Português (BR)**
+
+</div>
 
 > ⚠️ **Este deploy processa pagamentos reais** pela API da Stripe. Concluir o checkout cobra um cartão de verdade e gera uma música de verdade. Não precisa pagar pra ver o produto funcionando — a letra é gerada e pode ser editada livremente antes de qualquer cobrança.
+
+---
+
+## Sumário
+
+- [Screenshots](#screenshots)
+- [Por que esse projeto existe](#por-que-esse-projeto-existe)
+- [O que ele realmente faz](#o-que-ele-realmente-faz)
+- [Funcionalidades](#funcionalidades)
+- [Stack](#stack)
+- [Arquitetura](#arquitetura)
+- [Decisões de engenharia que valem a pena mencionar](#decisões-de-engenharia-que-valem-a-pena-mencionar)
+- [Modelo de segurança](#modelo-de-segurança)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Rodando localmente](#rodando-localmente)
+- [Roadmap](#roadmap)
+- [Licença](#licença)
+
+---
+
+## Screenshots
+
+|                                          Página inicial                                          |                                        Exemplos funcionando                                        |
+| :----------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
+| ![Landing](docs/screenshots/landing-hero.png)<br>_O pitch, numa tela só_ | ![Exemplos](docs/screenshots/landing-examples.png)<br>_Músicas reais geradas, tocáveis inline com barra de busca própria_ |
+
+|                                          Seleção de ocasião                                          |                                        Letra, antes de qualquer pagamento                                        |
+| :----------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
+| ![Wizard](docs/screenshots/wizard-occasion.png)<br>_Passo 1 de 5 — define tom, prompt e estilos sugeridos_ | ![Letra](docs/screenshots/letra-editing.png)<br>_Duas versões escritas por IA, geradas em paralelo e livremente editáveis_ |
+
+|                                          Checkout                                          |                                        Pagamento (Stripe Elements)                                        |
+| :----------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
+| ![Checkout](docs/screenshots/checkout-plans.png)<br>_Preço calculado no servidor — o cliente nunca manda um valor_ | ![Pagamento](docs/screenshots/payment-stripe.png)<br>_Elemento de cartão montado direto pela Stripe, tokenizado no navegador_ |
+
+_A interface troca entre inglês e português; os screenshots acima mostram a versão em inglês. As músicas são sempre escritas e cantadas em português do Brasil._
 
 ---
 
 ## Por que esse projeto existe
 
 Isso começou como uma ideia comercial de verdade — um concorrente brasileiro de um serviço existente de "música personalizada por IA" — e eu construí tudo sozinho: decisões de produto, backend, frontend, pagamentos e o pipeline de IA que transforma a história de um estranho numa faixa pronta. Hoje é apresentado como projeto de portfólio em vez de negócio, mas nada foi simplificado pra chegar até aqui — mesmo código, mesmas integrações, mesmo processamento real de pagamento que um cliente pagante encontraria.
+
+É também uma vitrine de ponta a ponta de um app full-stack com cara de produção: cálculo de preço só no servidor, um fluxo de pagamento reconferido independentemente do que o cliente afirma, uma condição de corrida corrigida no nível do banco em vez de com um mutex, e um pipeline de produção híbrido onde um humano cobre silenciosamente a IA quando ela falha.
 
 ## O que ele realmente faz
 
@@ -21,7 +72,36 @@ Isso começou como uma ideia comercial de verdade — um concorrente brasileiro 
 5. Se o motor automático falhar por qualquer motivo, o pedido cai silenciosamente numa fila manual em vez de falhar pro cliente — um operador termina o trabalho na mão e o cliente nunca percebe a diferença.
 6. A música pronta (as duas versões, com capa incluída) aparece sozinha na página do pedido, sem precisar recarregar.
 
-Tudo é bilíngue (inglês por padrão, português trocável) por um sistema de dicionário feito do zero, e o idioma da interface é independente do idioma da música — as músicas são sempre escritas e cantadas em português do Brasil, já que é isso que os gêneros do seletor de estilo realmente são.
+---
+
+## Funcionalidades
+
+### 🪄 Wizard e letras
+- Wizard de 5 passos cobrindo ocasião, destinatário, relacionamento, história em texto livre e estilo musical.
+- Duas versões de letra escritas em paralelo a partir de prompts com ângulos diferentes, transmitidas ao cliente como NDJSON em vez de uma única chamada bloqueante.
+- Cada um dos 14 estilos musicais tem sua própria orientação de vocabulário, tamanho de verso, densidade de rima e imagens injetada no system prompt da LLM — não é só uma tag de instrumentação.
+- A letra é livre pra gerar e editar, palavra por palavra, antes de existir qualquer pagamento.
+
+### 💳 Pagamentos
+- Stripe Elements + a API de PaymentIntents — o cartão é tokenizado no navegador, o servidor nunca toca nele.
+- O valor cobrado é sempre calculado no servidor a partir da linha do pedido; o cliente só pode mandar um `orderId` e nada mais (comprovado com testes adversariais que forjam o valor e confirmam que ele é ignorado).
+- PaymentIntents são reaproveitados entre recarregamentos em vez de duplicados — uma checagem de idempotência por pedido.
+- A verdade do pagamento é checada duas vezes: uma via webhook da Stripe (`payment_intent.succeeded`), independentemente via polling do cliente que reconfere o mesmo PaymentIntent na API da Stripe — qualquer um dos dois caminhos sozinho já basta pra liberar o pedido.
+
+### 🎵 Produção musical
+- Geração baseada em Suno via o agregador crun.ai, disparada automaticamente na confirmação do pagamento.
+- Produção híbrida: se o motor automático falha (timeout, resposta ruim, rate limit), o pedido cai silenciosamente numa fila manual em vez de falhar pro cliente.
+- Uma condição de corrida na finalização de job (duas abas fazendo polling ao mesmo tempo) é fechada com um único `UPDATE ... WHERE status IN (...)` condicional, não um mutex.
+- O áudio final e a capa ficam no Cloudflare R2, servidos por URLs assinadas de curta duração.
+
+### 🌍 Bilíngue por design
+- O idioma da interface vive num cookie, não na URL — um link `/pedido/<token>` já compartilhado nunca quebra quando o idioma padrão muda.
+- O dicionário são dois arquivos paralelos (português como fonte da verdade, inglês como espelho); `type Dict = typeof pt` faz o compilador do TypeScript recusar o build se uma chave estiver faltando em qualquer um dos dois.
+- Idioma da interface e idioma da música são independentes — as músicas são sempre escritas e cantadas em português do Brasil, seja qual for o idioma da interface, já que é isso que os gêneros do seletor de estilo realmente são.
+
+### 🛡️ Prevenção de abuso
+- Cloudflare Turnstile na frente do endpoint (gratuito) de geração de letra, antes dele rodar.
+- Cinco camadas de rate limit empilhadas, da mais fácil à mais difícil de forjar: IP (frouxo, considerando CGNAT), cookie de dispositivo, fingerprint do navegador, e-mail, e um teto global diário opcional — com uma allowlist limpa pra testar sem esbarrar em nenhuma delas.
 
 ---
 
@@ -37,6 +117,40 @@ Tudo é bilíngue (inglês por padrão, português trocável) por um sistema de 
 | **Cloudflare Turnstile** | Verificação de humanidade antes de qualquer geração que custa dinheiro. |
 
 Sem ORM, sem SDK pesado onde um `fetch` resolve — o cliente do crun.ai e o do R2 são wrappers feitos à mão, com política explícita de retry/tratamento de erro, de propósito; a Stripe é a exceção, porque reimplementar verificação de assinatura de webhook/PaymentIntent na mão seria só reinventar uma roda crítica de segurança.
+
+---
+
+## Arquitetura
+
+Tudo roda como um único deploy do Next.js — sem backend separado. As rotas de API são o backend; Supabase, Stripe e crun.ai são os únicos sistemas externos.
+
+```
+                              NAVEGADOR
+                                 │
+                       ┌─────────▼──────────┐
+                       │   Interface Next.js │   wizard → letra → checkout → pagamento → pedido
+                       └─────────┬──────────┘
+                                 │ fetch (rotas de API, mesmo deploy — sem backend separado)
+                       ┌─────────▼──────────┐
+              ┌────────┤     Rotas de API    ├────────┐
+              │        └─────────┬──────────┘        │
+              ▼                  ▼                    ▼
+      Claude Haiku          API da Stripe        Supabase (Postgres)
+   (letra, transmitida    (PaymentIntent +      orders · payments · jobs
+   como NDJSON, pré-pago) webhook, pós-pago)     rate limits · log de abuso
+                                 │
+                   pagamento confirmado (webhook OU polling — qualquer um basta)
+                                 │
+                       ┌─────────▼──────────┐
+                       │   crun.ai / Suno     │   job de produção musical
+                       └─────────┬──────────┘
+                                 │ callback do provedor, ou sweep por cron como reforço
+                       ┌─────────▼──────────┐
+                       │   Cloudflare R2     │   áudio final + capa, URLs assinadas
+                       └────────────────────┘
+```
+
+Se o callback do crun.ai nunca chegar (soluço do provedor, falha de rede), um sweep agendado (`/api/production/sweep`, cron do `vercel.json`) reconfere os jobs em andamento direto no provedor, em vez de confiar só no callback.
 
 ---
 
@@ -58,6 +172,51 @@ Sem ORM, sem SDK pesado onde um `fetch` resolve — o cliente do crun.ai e o do 
 
 ---
 
+## Modelo de segurança
+
+| Camada | Como é aplicada |
+|---|---|
+| **Valor do pagamento** | Calculado no servidor a partir da linha de `orders`; o cliente só consegue mandar um `orderId`. Nunca confiado a partir do payload da requisição. |
+| **Verdade do pagamento** | Nunca aceita de bandeja do cliente nem de um webhook não verificado — sempre reconferida independentemente na própria API de PaymentIntents da Stripe antes de marcar um pedido como pago. |
+| **Autenticidade do webhook** | Assinatura verificada via `stripe.webhooks.constructEvent` contra o corpo bruto da requisição; cai pra reconferir direto na API da Stripe se não houver segredo de webhook configurado — falha fechado, não aberto. |
+| **Abuso de bot/script** | Cloudflare Turnstile na frente do endpoint (gratuito, baseado em LLM) de geração de letra. |
+| **Rate limiting** | Cinco camadas empilhadas — IP, cookie de dispositivo, fingerprint do navegador, e-mail, teto global diário opcional — cada uma mais difícil de forjar que a anterior. |
+| **Endpoints internos** | As rotas de início de produção/override manual exigem um `ADMIN_SECRET` via bearer token; o sweep do cron exige `CRON_SECRET`. Nenhum dos dois é alcançável sem isso. |
+| **Acesso ao banco** | A service role key do Supabase só é usada em código do servidor — nunca chega ao navegador. |
+
+---
+
+## Estrutura do projeto
+
+```
+app/
+├── api/                    # backend — cada rota abaixo é uma função serverless
+│   ├── checkout/           # criação do pedido, PaymentIntent da Stripe, polling de status
+│   ├── webhooks/stripe/    # confirmação de pagamento com assinatura verificada
+│   ├── generate-lyrics/    # transmite NDJSON da LLM
+│   ├── production/         # início, override manual, callback do provedor, sweep do cron
+│   └── ...
+├── criar/                  # o wizard: ocasião → letra → checkout → pagamento
+├── pedido/[token]/         # a página de pedido/entrega voltada pro cliente
+└── admin/                  # fila manual + revisão de abuso, protegida por ADMIN_SECRET
+
+components/
+├── wizard/                 # um componente por passo do wizard
+└── AudioPlayer.tsx          # player customizado — os controles nativos não deixavam espaço pra buscar
+
+lib/
+├── music/                  # cliente do crun.ai + orquestrador de produção
+├── dict/{pt,en}.ts          # o dicionário bilíngue inteiro, paridade de chaves garantida pelo TypeScript
+├── stripe.ts, r2.ts         # clientes de provedor feitos à mão
+├── rate-limit.ts, abuse.ts  # a defesa de abuso em 5 camadas
+└── order-status.ts, payment-confirmed.ts   # o predicado único e compartilhado de "isso está pago de verdade"
+
+supabase/migrations/         # aplicadas com node scripts/migrate.js <arquivo>
+scripts/                     # testes adversariais e2e (adulteração de valor, deduplicação, etc.)
+```
+
+---
+
 ## Rodando localmente
 
 ```bash
@@ -72,4 +231,21 @@ O Cloudflare Turnstile bloqueia navegadores headless/automatizados por design (�
 
 ---
 
+## Roadmap
+
+- [ ] Pix como segundo método de pagamento além do cartão (a Stripe suporta pra contas registradas no Brasil; o handler de webhook já não precisa mudar pra suportar)
+- [ ] Suíte de testes ponta a ponta automatizada, ligada em CI (os scripts adversariais/e2e em `scripts/` hoje rodam na mão)
+- [ ] Autenticação de admin de verdade, no lugar de um único `ADMIN_SECRET` compartilhado via bearer token
+- [ ] Mais idiomas de interface além de inglês/português, reaproveitando o padrão `Dict = typeof pt` já existente
+
+---
+
+## Licença
+
+Distribuído sob a [Licença MIT](LICENSE) — © 2026 Luis Eduardo.
+
+<div align="center">
+
 Construído sozinho por [@merino626](https://github.com/merino626).
+
+</div>
