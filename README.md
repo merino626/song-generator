@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/img/surpresa.jpg" alt="Vira Canção" width="120" style="border-radius: 12px" />
+<img src="docs/screenshots/logo.png" alt="Vira Canção" height="40" />
 
 # Vira Canção
 
@@ -41,9 +41,23 @@
 
 ## Screenshots
 
+### Bilingual interface, no page reload
+
+Switching languages rewrites the cookie and refreshes the server tree — no route change, no lost form state.
+
+![Language switch](docs/screenshots/language-switch.gif)
+
+### Custom audio player with a seek bar that's actually usable
+
+Native `<audio>` controls didn't leave enough room to scrub a track on a narrow card — this is the fix, dragging through a real generated song.
+
+![Audio seek](docs/screenshots/audio-seek.gif)
+
+### The funnel
+
 |                                          Landing page                                          |                                        Working examples                                        |
 | :----------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
-| ![Landing](docs/screenshots/landing-hero.png)<br>_The pitch, in one screen_ | ![Examples](docs/screenshots/landing-examples.png)<br>_Real generated songs, playable inline with a custom seek bar_ |
+| ![Landing](docs/screenshots/landing-hero.png)<br>_The pitch, in one screen_ | ![Examples](docs/screenshots/landing-examples.png)<br>_Real generated songs, playable inline_ |
 
 |                                          Occasion picker                                          |                                        Lyrics, before any payment                                        |
 | :----------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
@@ -53,7 +67,13 @@
 | :----------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
 | ![Checkout](docs/screenshots/checkout-plans.png)<br>_Server-computed price — the client never sends an amount_ | ![Payment](docs/screenshots/payment-stripe.png)<br>_Card element mounted directly from Stripe, tokenized in the browser_ |
 
-_The interface switches between English and Portuguese; screenshots above show the English version. Songs are always written and sung in Brazilian Portuguese._
+### After payment
+
+|                                          Delivered order                                          |                                        Your own songs, anytime                                        |
+| :----------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
+| ![Delivered](docs/screenshots/order-delivered.png)<br>_Both takes, cover art, share and download — the moment the product is for_ | ![My orders](docs/screenshots/my-orders.png)<br>_Look up every song tied to an email, no login — mixed in-production/ready states_ |
+
+_The interface switches between English and Portuguese; static screenshots above show the English version. Songs are always written and sung in Brazilian Portuguese._
 
 ---
 

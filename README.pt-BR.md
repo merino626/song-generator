@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/img/surpresa.jpg" alt="Vira Canção" width="120" style="border-radius: 12px" />
+<img src="docs/screenshots/logo.png" alt="Vira Canção" height="40" />
 
 # Vira Canção
 
@@ -41,9 +41,23 @@
 
 ## Screenshots
 
+### Interface bilíngue, sem recarregar a página
+
+Trocar de idioma reescreve o cookie e atualiza a árvore do servidor — sem mudar de rota, sem perder estado de formulário.
+
+![Troca de idioma](docs/screenshots/language-switch.gif)
+
+### Player de áudio customizado, com barra de busca que funciona de verdade
+
+Os controles nativos de `<audio>` não deixavam espaço suficiente pra buscar a música num card estreito — esta é a correção, arrastando por uma música real gerada na plataforma.
+
+![Busca no áudio](docs/screenshots/audio-seek.gif)
+
+### O funil
+
 |                                          Página inicial                                          |                                        Exemplos funcionando                                        |
 | :----------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
-| ![Landing](docs/screenshots/landing-hero.png)<br>_O pitch, numa tela só_ | ![Exemplos](docs/screenshots/landing-examples.png)<br>_Músicas reais geradas, tocáveis inline com barra de busca própria_ |
+| ![Landing](docs/screenshots/landing-hero.png)<br>_O pitch, numa tela só_ | ![Exemplos](docs/screenshots/landing-examples.png)<br>_Músicas reais geradas, tocáveis inline_ |
 
 |                                          Seleção de ocasião                                          |                                        Letra, antes de qualquer pagamento                                        |
 | :----------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
@@ -53,7 +67,13 @@
 | :----------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
 | ![Checkout](docs/screenshots/checkout-plans.png)<br>_Preço calculado no servidor — o cliente nunca manda um valor_ | ![Pagamento](docs/screenshots/payment-stripe.png)<br>_Elemento de cartão montado direto pela Stripe, tokenizado no navegador_ |
 
-_A interface troca entre inglês e português; os screenshots acima mostram a versão em inglês. As músicas são sempre escritas e cantadas em português do Brasil._
+### Depois do pagamento
+
+|                                          Pedido entregue                                          |                                        Suas próprias músicas, quando quiser                                        |
+| :----------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
+| ![Entregue](docs/screenshots/order-delivered.png)<br>_As duas versões, capa, compartilhar e baixar — o momento pra que o produto existe_ | ![Meus pedidos](docs/screenshots/my-orders.png)<br>_Consulta toda música ligada a um e-mail, sem login — estados misturados de em-produção/pronta_ |
+
+_A interface troca entre inglês e português; os screenshots estáticos acima mostram a versão em inglês. As músicas são sempre escritas e cantadas em português do Brasil._
 
 ---
 

@@ -114,6 +114,13 @@ function formatoDecorrido(d: Dict, s: number): string {
 export function PedidoView({ token, inicial }: { token: string; inicial: Pedido }) {
   const [pedido, setPedido] = useState<Pedido>(inicial);
   const [copiado, setCopiado] = useState(false);
+  // Só existe no cliente: usar `window.location.href` direto no corpo do
+  // componente rende-riza "" no servidor e a URL real no cliente, o que o
+  // React acusa como divergência de hidratação (o href do WhatsApp/"Copiar
+  // link" nasce errado). Um estado preenchido só depois de montar garante que
+  // servidor e a primeira renderização do cliente concordem.
+  const [linkPublico, setLinkPublico] = useState("");
+  useEffect(() => setLinkPublico(window.location.href), []);
 
   useEffect(() => {
     if (pedido.estado !== "produzindo") return;
@@ -133,7 +140,6 @@ export function PedidoView({ token, inicial }: { token: string; inicial: Pedido 
   const occasion = occasionBase ? locOccasion(d, occasionBase) : undefined;
   const styleBase = getStyle(pedido.estilo);
   const style = styleBase ? locStyle(d, styleBase) : undefined;
-  const linkPublico = typeof window !== "undefined" ? window.location.href : "";
 
   async function copiarLink() {
     try {
