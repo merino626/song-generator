@@ -1,0 +1,42 @@
+# === segredos — NUNCA commitar ===
+.env
+.env.*
+!.env.example
+*.env
+!*.env.example
+infra/supabase.env
+
+# deps / builds
+node_modules/
+.next/
+dist/
+build/
+
+# spike de automação/bypass do Turnstile — pesquisa interna, não é pra público
+infra/suno-api-spike/
+*.mp3
+!public/samples/*.mp3
+
+# build artifacts
+tsconfig.tsbuildinfo
+
+# config local de ferramentas
+.claude/
+
+# task IDs internos do crun.ai — não é pra público (mesmo motivo de terem
+# saído de public/ antes)
+scripts/geracao-notas/
+
+# pesquisa interna / material de concorrência — não vai pro repositório público
+abc.txt
+concorrentes-2.txt
+informações-garimpadatas.txt
+exp-tmp.mjs
+docs/concorrentes/
+docs/estudo-turnstile-bypass.md
+docs/estudo-apis-suno-pagas.md
+docs/estudo-custo-letra-llm.md
+docs/estudo-midias-crun.md
+docs/analise-concorrentes-2.md
+docs/analise-ads-amor-em-cancao.md
+docs/crun-precos.json
