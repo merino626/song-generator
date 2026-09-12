@@ -7,9 +7,14 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 /**
- * Rede de segurança: varre os jobs em andamento caso o webhook não chegue.
- * Chamar por cron (Vercel Cron / pg_cron) a cada ~1 minuto.
- * Protegido por CRON_SECRET para não virar endpoint público de trabalho.
+ * Rede de segurança: varre os jobs em andamento caso o callback do provider
+ * não chegue. Rodada 1x/dia via Vercel Cron (`vercel.json`) — o plano Hobby
+ * não permite frequência maior. Não é a única defesa: enquanto o cliente
+ * está com a página do pedido aberta, cada consulta já reconfere o job na
+ * hora (ver "auto-cura" em `app/api/pedido/[token]/route.ts`); este sweep
+ * cobre só o caso de o cliente ter fechado a aba antes da música ficar
+ * pronta. Protegido por CRON_SECRET para não virar endpoint público de
+ * trabalho — a Vercel manda esse bearer sozinha quando a env var existe.
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
