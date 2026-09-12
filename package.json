@@ -14,7 +14,7 @@
     "@stripe/react-stripe-js": "^6.10.0",
     "@stripe/stripe-js": "^9.16.0",
     "@supabase/supabase-js": "^2.112.2",
-    "next": "15.1.6",
+    "next": "^15.1.9",
     "pg": "^8.23.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
