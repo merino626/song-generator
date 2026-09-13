@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { finalizeJob } from "@/lib/music/orchestrator";
+import { finalizeJob, startProduction } from "@/lib/music/orchestrator";
 
 export const dynamic = "force-dynamic";
 
@@ -65,6 +65,28 @@ export async function GET(_req: Request, { params }: { params: Promise<{ token: 
         order = (await fetchOrder(db, token)) ?? order;
       } catch (e) {
         console.error("[pedido] auto-cura falhou:", (e as Error).message);
+      }
+    }
+  }
+
+  // Cobre um jeito específico (e real) de travar: `startProduction` é
+  // disparado via `after()` no instante em que o pagamento é confirmado, sem
+  // bloquear a resposta ao cliente — mas se a instância serverless morrer
+  // antes desse `after()` terminar (ou por qualquer outro motivo ele nunca
+  // rodar), o pedido fica em "paid" pra sempre SEM NENHUM job criado, e o
+  // self-heal acima não pega isso porque não há job nenhum pra reconsultar.
+  // Um atraso de 20s evita disparar de novo em cima do `after()` que ainda
+  // está no meio do próprio request original.
+  if (order.status === "paid" && order.paid_at && Date.now() - new Date(order.paid_at).getTime() > 20_000) {
+    const { data: job } = await db.from("jobs").select("id").eq("order_id", order.id).eq("type", "vocal").maybeSingle();
+    if (!job) {
+      try {
+        const site = process.env.NEXT_PUBLIC_SITE_URL;
+        const callbackUrl = site && !site.includes("localhost") ? `${site}/api/production/callback` : undefined;
+        await startProduction(order.id, callbackUrl);
+        order = (await fetchOrder(db, token)) ?? order;
+      } catch (e) {
+        console.error("[pedido] auto-cura (paid sem job) falhou:", (e as Error).message);
       }
     }
   }

@@ -246,7 +246,7 @@ export async function finalizeJob(jobId: string) {
 
 /**
  * Varre jobs em andamento — rede de segurança para quando o webhook não chega.
- * Ideal chamar por cron (pg_cron/Vercel Cron) a cada ~1 min.
+ * Roda 1x/dia via Vercel Cron (`vercel.json`, plano Hobby não permite mais).
  */
 export async function sweepRunningJobs() {
   const db = supabaseAdmin();
@@ -259,5 +259,32 @@ export async function sweepRunningJobs() {
       results.push({ jobId: j.id, error: (e as Error).message });
     }
   }
+
+  // Cobre pedidos pagos que nunca chegaram a ter um job criado — aconteceu de
+  // verdade: `startProduction`, disparado via `after()` sem bloquear a
+  // resposta ao pagamento, pode ser interrompido se a instância serverless
+  // for encerrada antes de terminar. Diferente do self-heal da página do
+  // pedido (só roda se o cliente reabrir a aba), isto pega também quem nunca
+  // mais voltou a olhar.
+  const umDiaAtras = new Date(Date.now() - 24 * 3_600_000).toISOString();
+  const { data: pagos } = await db
+    .from("orders")
+    .select("id,paid_at")
+    .eq("status", "paid")
+    .gte("paid_at", umDiaAtras)
+    .limit(25);
+  for (const o of pagos ?? []) {
+    if (!o.paid_at || Date.now() - new Date(o.paid_at).getTime() < 20_000) continue;
+    const { data: job } = await db.from("jobs").select("id").eq("order_id", o.id).eq("type", "vocal").maybeSingle();
+    if (job) continue;
+    try {
+      const site = process.env.NEXT_PUBLIC_SITE_URL;
+      const callbackUrl = site && !site.includes("localhost") ? `${site}/api/production/callback` : undefined;
+      results.push({ orderId: o.id, ...(await startProduction(o.id, callbackUrl)) });
+    } catch (e) {
+      results.push({ orderId: o.id, error: (e as Error).message });
+    }
+  }
+
   return results;
 }
