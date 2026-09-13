@@ -253,7 +253,7 @@ Cloudflare Turnstile blocks headless/automated browsers by design (it's the whol
 
 ## Roadmap
 
-- [ ] Pix as a second payment method alongside card (Stripe supports it for BR-registered accounts; the webhook handler already needs no changes to support it)
+- [ ] Pix as a second payment method alongside card — blocked on Stripe's side: this account needs invite-based access before `pix` can be added to `payment_method_types` (adding it without that access makes Stripe reject PaymentIntent creation entirely, confirmed against the live account). The webhook handler and the payment-confirmation polling already support it with no further changes once access is granted.
 - [ ] Automated end-to-end test suite wired into CI (the adversarial/e2e scripts in `scripts/` currently run by hand)
 - [ ] Real admin authentication in place of a single shared `ADMIN_SECRET` bearer token
 - [ ] More interface languages beyond English/Portuguese, reusing the existing `Dict = typeof pt` pattern

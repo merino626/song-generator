@@ -116,6 +116,14 @@ function FormularioPagamento({ publicToken }: { publicToken?: string }) {
   const [enviando, setEnviando] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  // Separado de `enviando` de propósito: `enviando` só liga/desliga o spinner
+  // do botão, mas com Pix o pagamento não termina quando `confirmPayment`
+  // resolve — o cliente ainda precisa abrir o app do banco e escanear o QR,
+  // que fica visível dentro do próprio <PaymentElement> depois que `enviando`
+  // já voltou a `false`. Se o polling abaixo dependesse de `enviando`, ele
+  // pararia bem na hora em que o cliente está olhando o QR esperando a
+  // confirmação — exatamente quando mais precisamos continuar checando.
+  const [aguardandoConfirmacao, setAguardandoConfirmacao] = useState(false);
 
   /** Confere no nosso servidor (que reconfere na Stripe) antes de redirecionar. */
   async function confirmarEIrPara(token?: string) {
@@ -141,7 +149,7 @@ function FormularioPagamento({ publicToken }: { publicToken?: string }) {
   // instante a mais do lado da Stripe). Mesmo princípio do polling já usado
   // na página do pedido — nunca confiar só num mecanismo de notificação.
   useEffect(() => {
-    if (!enviando || !publicToken) return;
+    if (!aguardandoConfirmacao || !publicToken) return;
     const id = setInterval(async () => {
       try {
         const r = await fetch(`/api/checkout/status?token=${publicToken}`, { cache: "no-store" });
@@ -152,7 +160,7 @@ function FormularioPagamento({ publicToken }: { publicToken?: string }) {
       }
     }, 4000);
     return () => clearInterval(id);
-  }, [enviando, publicToken, router]);
+  }, [aguardandoConfirmacao, publicToken, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -164,6 +172,7 @@ function FormularioPagamento({ publicToken }: { publicToken?: string }) {
     // 3D Secure em cima do próprio formulário). `enviando` só desabilita o
     // botão — o formulário continua na tela até termos uma resposta.
     setEnviando(true);
+    setAguardandoConfirmacao(true);
 
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
@@ -177,6 +186,7 @@ function FormularioPagamento({ publicToken }: { publicToken?: string }) {
 
     if (error) {
       setEnviando(false);
+      setAguardandoConfirmacao(false);
       setErro(error.message || d.pagamento.recusado);
       return;
     }
@@ -191,8 +201,11 @@ function FormularioPagamento({ publicToken }: { publicToken?: string }) {
       return;
     }
 
-    // requires_action / processing / etc. sem erro — raro com cartão simples;
-    // o polling acima assume a partir daqui, sem travar o formulário.
+    // requires_action / processing / etc. sem erro — era raro só com cartão,
+    // mas é o caminho NORMAL do Pix: o cliente ainda vai escanear o QR (fica
+    // visível dentro do próprio <PaymentElement>, que continua montado porque
+    // `confirmado` segue false). `aguardandoConfirmacao` continua true — o
+    // polling acima é quem detecta quando o Pix efetivamente for pago.
     setEnviando(false);
   }
 
@@ -206,8 +219,16 @@ function FormularioPagamento({ publicToken }: { publicToken?: string }) {
       ) : (
         <>
           <PaymentElement />
-          <button type="submit" disabled={!stripe || enviando} className="btn-primary mt-5 w-full !py-3.5">
-            {enviando ? (
+          {/* `aguardandoConfirmacao` sem `enviando`: card já resolveu como erro
+              (reseta os dois, cai fora daqui) ou é a espera do Pix — trava o
+              botão pra não disparar `confirmPayment` de novo em cima do QR
+              já exibido pelo próprio <PaymentElement>. */}
+          <button
+            type="submit"
+            disabled={!stripe || enviando || aguardandoConfirmacao}
+            className="btn-primary mt-5 w-full !py-3.5"
+          >
+            {enviando || aguardandoConfirmacao ? (
               <span className="inline-flex items-center gap-2.5">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                 {d.pagamento.processando}

@@ -80,11 +80,13 @@ export async function POST(request: Request) {
       description: `Vira Canção — ${order.title || "Música personalizada"}`.slice(0, 250),
       receipt_email: order.customer_email || undefined,
       metadata: { orderId: order.id },
-      // Só cartão, de propósito — mesma decisão que já tínhamos tomado com o
-      // Mercado Pago: Pix e boleto exigem aprovação especial da Stripe pro
-      // Brasil também, e "automatic_payment_methods" pode surfar um método
-      // que precisa de redirecionamento de página, complicando a tela por
-      // um ganho que a conta nem tem habilitado.
+      // Só cartão, de propósito. Pix ficaria ótimo aqui, mas a Stripe exige
+      // acesso liberado por convite pra essa conta — incluir "pix" neste
+      // array SEM esse acesso faz a criação do PaymentIntent inteiro ser
+      // recusada (erro 502), quebrando até o cartão. Testado e confirmado:
+      // ver histórico do commit que reverteu isto. Só reativar depois que o
+      // Dashboard (Settings > Payment methods) mostrar Pix como disponível
+      // de verdade, não só "solicitar acesso".
       payment_method_types: ["card"],
     });
   } catch (e) {
