@@ -122,6 +122,11 @@ It's also an end-to-end showcase of a production-shaped full-stack app: server-o
 ### 🛡️ Abuse prevention
 - Cloudflare Turnstile gates the (free) lyric-generation endpoint before it ever runs.
 - Five layered rate limits stack from easiest to hardest to spoof: IP (loose, CGNAT-aware), device cookie, browser fingerprint, email, and an optional global daily cap — with a clean allowlist for testing that skips all of them.
+- Every generation attempt is logged (IP, device, fingerprint, a hash of the story — never the story itself) and turned into a heuristic suspicion score: high volume with zero purchases, a story hash repeated across many attempts (a real person doesn't retype the same story; a script does), IP/email rotation on the same device, disposable email domains. The score *orders* suspects for a human to review at `/admin/abuso` — it flags, it doesn't auto-convict; an actual purchase pulls the score back down hard.
+
+### 🔐 Admin tools
+- `/admin` is closed by default — no `ADMIN_SECRET` configured means a 503, not an open panel. Access is a 256-bit secret exchanged once via a URL query param for an `httpOnly` cookie (so the secret never lingers in the address bar or browser history afterward), backed by a persistent, cross-instance rate limit on wrong attempts and a constant-time comparison so response timing can't leak it.
+- The manual production queue (`/admin/fila`) is the human half of the hybrid pipeline described above: sorted by plan first so "priority" is an actual queue position and not just marketing copy, flags orders past their promised SLA, and hands the operator everything needed to reproduce the job by hand — the exact style tags and lyrics, ready to paste into their own Suno account.
 
 ---
 
@@ -190,6 +195,10 @@ If the crun.ai callback never arrives (provider hiccup, network blip), a schedul
 
 **Payment invariants enforced twice.** Whether an order counts as "paid" is decided by a single shared predicate (`isPaidOrBeyond`), checked both by the endpoint that releases the finished song *and* independently inside the production-start function itself — so a future code path that forgets the check still can't ship a song for an order that was never actually paid for.
 
+**Re-blocking an abuser failed silently — traced to a partial unique index.** The `blocks` table only enforces uniqueness `WHERE active`, on purpose: it lets the same identity be blocked again later without a false duplicate once an earlier block expired. Postgres can't target a partial index with `ON CONFLICT`, so an upsert-based "block" action just swallowed the conflict and did nothing. The fix: never upsert here — explicitly deactivate any existing active block, then insert a fresh row, which as a side effect keeps a full history of every block ever applied instead of overwriting it.
+
+**A paid order can get stuck with zero production jobs — and now heals itself.** `startProduction` used to run as a fire-and-forget promise right after marking an order paid. On Vercel's serverless runtime that's unsafe: the function instance can be frozen the instant the HTTP response is sent, killing the work before it even inserts a job row. It happened to a real, live payment. Fixed at the source with `after()` (so Vercel keeps the instance alive until the work actually finishes), plus a backstop in both the order page and the daily cron sweep that detects "paid with no job" past a short grace window and retries.
+
 ---
 
 ## Security model
@@ -202,6 +211,7 @@ If the crun.ai callback never arrives (provider hiccup, network blip), a schedul
 | **Bot/script abuse** | Cloudflare Turnstile in front of the (free, LLM-backed) lyric-generation endpoint. |
 | **Rate limiting** | Five stacked layers — IP, device cookie, browser fingerprint, email, optional global daily cap — each harder to spoof than the last. |
 | **Internal endpoints** | Production start/manual-override routes require a bearer `ADMIN_SECRET`; the cron sweep requires `CRON_SECRET`. Neither is reachable without it. |
+| **Admin panel** | Closed by default (no secret configured = 503, not open). The secret is exchanged once via URL param for an `httpOnly` cookie, guarded by a persistent rate limit on wrong attempts and a constant-time comparison. |
 | **Database access** | The Supabase service role key is used only in server-side code — it never reaches the browser. |
 
 ---

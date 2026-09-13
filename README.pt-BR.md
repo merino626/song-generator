@@ -122,6 +122,11 @@ Isso começou como uma ideia comercial de verdade — um concorrente brasileiro 
 ### 🛡️ Prevenção de abuso
 - Cloudflare Turnstile na frente do endpoint (gratuito) de geração de letra, antes dele rodar.
 - Cinco camadas de rate limit empilhadas, da mais fácil à mais difícil de forjar: IP (frouxo, considerando CGNAT), cookie de dispositivo, fingerprint do navegador, e-mail, e um teto global diário opcional — com uma allowlist limpa pra testar sem esbarrar em nenhuma delas.
+- Toda tentativa de geração é registrada (IP, dispositivo, fingerprint, um hash da história — nunca a história em si) e vira uma pontuação heurística de suspeita: volume alto sem nenhuma compra, o mesmo hash de história repetido em várias tentativas (uma pessoa de verdade não redigita a mesma história; um script sim), rotação de IP/e-mail no mesmo aparelho, domínios de e-mail descartável. A pontuação *ordena* os suspeitos pra revisão humana em `/admin/abuso` — ela sinaliza, não condena sozinha; uma compra de verdade derruba bastante a pontuação.
+
+### 🔐 Ferramentas de admin
+- `/admin` fica fechado por padrão — sem `ADMIN_SECRET` configurado dá 503, não um painel aberto. O acesso é uma chave de 256 bits trocada uma vez via parâmetro de URL por um cookie `httpOnly` (assim a chave não fica no histórico do navegador depois disso), com rate limit persistente entre instâncias contra tentativas erradas e comparação em tempo constante pra não vazar a chave pelo tempo de resposta.
+- A fila manual de produção (`/admin/fila`) é a metade humana do pipeline híbrido descrito acima: ordenada por plano primeiro, então "prioritário" é uma posição de fila de verdade e não só discurso de venda, sinaliza pedidos que passaram do SLA prometido, e entrega ao operador tudo que precisa pra reproduzir o job na mão — as tags de estilo exatas e a letra, prontas pra colar na própria conta Suno dele.
 
 ---
 
@@ -190,6 +195,10 @@ Se o callback do crun.ai nunca chegar (soluço do provedor, falha de rede), um s
 
 **Invariante de pagamento verificado duas vezes.** Se um pedido conta como "pago" é decidido por um único predicado compartilhado (`isPaidOrBeyond`), checado tanto pelo endpoint que libera a música pronta *quanto* independentemente dentro da própria função que inicia a produção — assim, um futuro caminho de código que esquecer a checagem ainda assim não consegue entregar uma música de um pedido que nunca foi pago de verdade.
 
+**Rebloquear alguém falhava silenciosamente — rastreado até um índice único parcial.** A tabela `blocks` só aplica unicidade `WHERE active`, de propósito: isso permite bloquear a mesma identidade de novo mais tarde sem um falso duplicado depois que um bloqueio anterior expira. O Postgres não consegue mirar um índice parcial com `ON CONFLICT`, então uma ação de "bloquear" baseada em upsert simplesmente engolia o conflito e não fazia nada. A correção: nunca fazer upsert aqui — desativa explicitamente qualquer bloqueio ativo existente, depois insere uma linha nova, o que como efeito colateral mantém o histórico completo de todo bloqueio já aplicado em vez de sobrescrever.
+
+**Um pedido pago pode ficar preso com zero jobs de produção — e agora se autocura.** `startProduction` costumava rodar como uma promise solta logo depois de marcar um pedido como pago. No runtime serverless da Vercel isso é perigoso: a instância da function pode ser congelada no instante em que a resposta HTTP é enviada, matando o trabalho antes mesmo dele inserir uma linha de job. Aconteceu com um pagamento real, ao vivo. Corrigido na origem com `after()` (que faz a Vercel manter a instância viva até o trabalho realmente terminar), mais uma rede de segurança tanto na página do pedido quanto no sweep diário do cron, que detecta "pago sem nenhum job" depois de uma janela curta de tolerância e tenta de novo.
+
 ---
 
 ## Modelo de segurança
@@ -202,6 +211,7 @@ Se o callback do crun.ai nunca chegar (soluço do provedor, falha de rede), um s
 | **Abuso de bot/script** | Cloudflare Turnstile na frente do endpoint (gratuito, baseado em LLM) de geração de letra. |
 | **Rate limiting** | Cinco camadas empilhadas — IP, cookie de dispositivo, fingerprint do navegador, e-mail, teto global diário opcional — cada uma mais difícil de forjar que a anterior. |
 | **Endpoints internos** | As rotas de início de produção/override manual exigem um `ADMIN_SECRET` via bearer token; o sweep do cron exige `CRON_SECRET`. Nenhum dos dois é alcançável sem isso. |
+| **Painel de admin** | Fechado por padrão (sem chave configurada = 503, não aberto). A chave é trocada uma vez via parâmetro de URL por um cookie `httpOnly`, protegida por rate limit persistente contra tentativas erradas e comparação em tempo constante. |
 | **Acesso ao banco** | A service role key do Supabase só é usada em código do servidor — nunca chega ao navegador. |
 
 ---
