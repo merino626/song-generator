@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/screenshots/logo.png" alt="Vira Canção" height="40" />
+<img src="docs/social-preview.png" alt="Vira Canção — gerador de música por IA com fluxo de pagamento real" width="100%" />
 
 # Vira Canção
 
