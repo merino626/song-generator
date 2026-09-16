@@ -1,13 +1,15 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
+
 export function OptionCard({
-  emoji,
+  icon: Icon,
   label,
   description,
   active,
   onClick,
 }: {
-  emoji?: string;
+  icon?: LucideIcon;
   label: string;
   description?: string;
   active: boolean;
@@ -21,11 +23,7 @@ export function OptionCard({
       className={`selectable ${active ? "selectable-active" : ""}`}
     >
       <div className="flex items-start gap-3">
-        {emoji && (
-          <span className="text-xl leading-none" aria-hidden>
-            {emoji}
-          </span>
-        )}
+        {Icon && <Icon className="h-5 w-5 shrink-0 text-wine-600" aria-hidden />}
         <div className="min-w-0">
           <p className="font-medium leading-tight text-ink">{label}</p>
           {description && <p className="mt-0.5 text-xs leading-snug text-ink/50">{description}</p>}

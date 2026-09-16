@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PartyPopper, Check } from "lucide-react";
 import { getOccasion } from "@/lib/occasions";
 import { getStyle } from "@/lib/music-styles";
 import { useDict } from "@/components/LocaleProvider";
@@ -182,7 +183,8 @@ export function PedidoView({ token, inicial }: { token: string; inicial: Pedido 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <div className="text-center">
-        <span className="inline-flex items-center gap-2 rounded-full bg-wine-50 px-4 py-1.5 text-xs font-medium text-wine-700">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-wine-50 px-4 py-1.5 text-xs font-medium text-wine-700">
+          <PartyPopper className="h-3.5 w-3.5" aria-hidden />
           {d.pedido.prontaBadge}
         </span>
         <h1 className="mt-5 font-serif text-4xl leading-tight text-ink">{pedido.titulo}</h1>
@@ -300,8 +302,9 @@ function Produzindo({
 
       <div className="card mx-auto mt-8 max-w-md p-5 text-left">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-ink">
-            {occasion?.emoji} {occasion?.label} · {style?.label}
+          <p className="flex items-center gap-1.5 text-ink">
+            {occasion && <occasion.icon className="h-4 w-4 shrink-0 text-wine-600" aria-hidden />}
+            {occasion?.label} · {style?.label}
           </p>
           {sla && (
             <span className="shrink-0 rounded-full bg-wine-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-wine-700">
@@ -339,7 +342,7 @@ function Produzindo({
               >
                 <span className="flex h-4 w-4 shrink-0 items-center justify-center" aria-hidden>
                   {feita ? (
-                    <span className="text-wine-600">✓</span>
+                    <Check className="h-3.5 w-3.5 text-wine-600" />
                   ) : agora ? (
                     <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-wine-200 border-t-wine-600" />
                   ) : (

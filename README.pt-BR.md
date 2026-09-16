@@ -96,35 +96,35 @@ Isso começou como uma ideia comercial de verdade — um concorrente brasileiro 
 
 ## Funcionalidades
 
-### 🪄 Wizard e letras
+### Wizard e letras
 - Wizard de 5 passos cobrindo ocasião, destinatário, relacionamento, história em texto livre e estilo musical.
 - Duas versões de letra escritas em paralelo a partir de prompts com ângulos diferentes, transmitidas ao cliente como NDJSON em vez de uma única chamada bloqueante.
 - Cada um dos 14 estilos musicais tem sua própria orientação de vocabulário, tamanho de verso, densidade de rima e imagens injetada no system prompt da LLM — não é só uma tag de instrumentação.
 - A letra é livre pra gerar e editar, palavra por palavra, antes de existir qualquer pagamento.
 
-### 💳 Pagamentos
+### Pagamentos
 - Stripe Elements + a API de PaymentIntents — o cartão é tokenizado no navegador, o servidor nunca toca nele.
 - O valor cobrado é sempre calculado no servidor a partir da linha do pedido; o cliente só pode mandar um `orderId` e nada mais (comprovado com testes adversariais que forjam o valor e confirmam que ele é ignorado).
 - PaymentIntents são reaproveitados entre recarregamentos em vez de duplicados — uma checagem de idempotência por pedido.
 - A verdade do pagamento é checada duas vezes: uma via webhook da Stripe (`payment_intent.succeeded`), independentemente via polling do cliente que reconfere o mesmo PaymentIntent na API da Stripe — qualquer um dos dois caminhos sozinho já basta pra liberar o pedido.
 
-### 🎵 Produção musical
+### Produção musical
 - Geração baseada em Suno via o agregador crun.ai, disparada automaticamente na confirmação do pagamento.
 - Produção híbrida: se o motor automático falha (timeout, resposta ruim, rate limit), o pedido cai silenciosamente numa fila manual em vez de falhar pro cliente.
 - Uma condição de corrida na finalização de job (duas abas fazendo polling ao mesmo tempo) é fechada com um único `UPDATE ... WHERE status IN (...)` condicional, não um mutex.
 - O áudio final e a capa ficam no Cloudflare R2, servidos por URLs assinadas de curta duração.
 
-### 🌍 Bilíngue por design
+### Bilíngue por design
 - O idioma da interface vive num cookie, não na URL — um link `/pedido/<token>` já compartilhado nunca quebra quando o idioma padrão muda.
 - O dicionário são dois arquivos paralelos (português como fonte da verdade, inglês como espelho); `type Dict = typeof pt` faz o compilador do TypeScript recusar o build se uma chave estiver faltando em qualquer um dos dois.
 - Idioma da interface e idioma da música são independentes — as músicas são sempre escritas e cantadas em português do Brasil, seja qual for o idioma da interface, já que é isso que os gêneros do seletor de estilo realmente são.
 
-### 🛡️ Prevenção de abuso
+### Prevenção de abuso
 - Cloudflare Turnstile na frente do endpoint (gratuito) de geração de letra, antes dele rodar.
 - Cinco camadas de rate limit empilhadas, da mais fácil à mais difícil de forjar: IP (frouxo, considerando CGNAT), cookie de dispositivo, fingerprint do navegador, e-mail, e um teto global diário opcional — com uma allowlist limpa pra testar sem esbarrar em nenhuma delas.
 - Toda tentativa de geração é registrada (IP, dispositivo, fingerprint, um hash da história — nunca a história em si) e vira uma pontuação heurística de suspeita: volume alto sem nenhuma compra, o mesmo hash de história repetido em várias tentativas (uma pessoa de verdade não redigita a mesma história; um script sim), rotação de IP/e-mail no mesmo aparelho, domínios de e-mail descartável. A pontuação *ordena* os suspeitos pra revisão humana em `/admin/abuso` — ela sinaliza, não condena sozinha; uma compra de verdade derruba bastante a pontuação.
 
-### 🔐 Ferramentas de admin
+### Ferramentas de admin
 - `/admin` fica fechado por padrão — sem `ADMIN_SECRET` configurado dá 503, não um painel aberto. O acesso é uma chave de 256 bits trocada uma vez via parâmetro de URL por um cookie `httpOnly` (assim a chave não fica no histórico do navegador depois disso), com rate limit persistente entre instâncias contra tentativas erradas e comparação em tempo constante pra não vazar a chave pelo tempo de resposta.
 - A fila manual de produção (`/admin/fila`) é a metade humana do pipeline híbrido descrito acima: ordenada por plano primeiro, então "prioritário" é uma posição de fila de verdade e não só discurso de venda, sinaliza pedidos que passaram do SLA prometido, e entrega ao operador tudo que precisa pra reproduzir o job na mão — as tags de estilo exatas e a letra, prontas pra colar na própria conta Suno dele.
 

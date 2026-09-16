@@ -96,35 +96,35 @@ It's also an end-to-end showcase of a production-shaped full-stack app: server-o
 
 ## Features
 
-### 🪄 Wizard & lyrics
+### Wizard & lyrics
 - 5-step wizard covering occasion, recipient, relationship, free-text story and music style.
 - Two lyric versions written in parallel from differently-angled prompts, streamed to the client as NDJSON instead of one blocking call.
 - Each of the 14 music styles has its own vocabulary, verse length, rhyme density and imagery guidance injected into the LLM's system prompt — not just an instrumentation tag.
 - Lyrics are free to generate and edit, word by word, before any payment exists.
 
-### 💳 Payments
+### Payments
 - Stripe Elements + the PaymentIntents API — card data is tokenized in the browser, the server never touches it.
 - The charged amount is always computed server-side from the order row; the client can send an `orderId` and nothing else (proven with adversarial tests that spoof the amount and confirm it's ignored).
 - PaymentIntents are reused across reloads instead of duplicated — an idempotency check by order.
 - Payment truth is checked twice: once via Stripe webhook (`payment_intent.succeeded`), independently via client polling that re-reads the same PaymentIntent from Stripe's API — either path alone is enough to unlock the order.
 
-### 🎵 Music production
+### Music production
 - Suno-backed generation via the crun.ai aggregator, kicked off automatically on payment confirmation.
 - Hybrid production: if the automated engine fails (timeout, bad response, rate limit), the order silently drops into a manual queue instead of failing the customer.
 - A finalize-job race condition (two tabs polling at once) is closed with a single conditional `UPDATE ... WHERE status IN (...)`, not a mutex.
 - Final audio and cover art are stored in Cloudflare R2 and served through short-lived signed URLs.
 
-### 🌍 Bilingual by design
+### Bilingual by design
 - Interface language lives in a cookie, not the URL — an already-shared `/order/<token>` link never breaks when the default language changes.
 - The dictionary is two parallel files (Portuguese as source of truth, English as a mirror); `type Dict = typeof pt` makes the TypeScript compiler refuse to build if a key is missing from either one.
 - Interface language and song language are independent — songs are always written and sung in Brazilian Portuguese regardless of UI language, since that's what the style picker's genres actually are.
 
-### 🛡️ Abuse prevention
+### Abuse prevention
 - Cloudflare Turnstile gates the (free) lyric-generation endpoint before it ever runs.
 - Five layered rate limits stack from easiest to hardest to spoof: IP (loose, CGNAT-aware), device cookie, browser fingerprint, email, and an optional global daily cap — with a clean allowlist for testing that skips all of them.
 - Every generation attempt is logged (IP, device, fingerprint, a hash of the story — never the story itself) and turned into a heuristic suspicion score: high volume with zero purchases, a story hash repeated across many attempts (a real person doesn't retype the same story; a script does), IP/email rotation on the same device, disposable email domains. The score *orders* suspects for a human to review at `/admin/abuso` — it flags, it doesn't auto-convict; an actual purchase pulls the score back down hard.
 
-### 🔐 Admin tools
+### Admin tools
 - `/admin` is closed by default — no `ADMIN_SECRET` configured means a 503, not an open panel. Access is a 256-bit secret exchanged once via a URL query param for an `httpOnly` cookie (so the secret never lingers in the address bar or browser history afterward), backed by a persistent, cross-instance rate limit on wrong attempts and a constant-time comparison so response timing can't leak it.
 - The manual production queue (`/admin/fila`) is the human half of the hybrid pipeline described above: sorted by plan first so "priority" is an actual queue position and not just marketing copy, flags orders past their promised SLA, and hands the operator everything needed to reproduce the job by hand — the exact style tags and lyrics, ready to paste into their own Suno account.
 

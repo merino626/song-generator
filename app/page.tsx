@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Pencil, Headphones, Shield, MessageCircle, FileText } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { OccasionGrid } from "@/components/OccasionGrid";
@@ -30,8 +31,8 @@ const FOTOS_HERO = [
   { src: "/img/surpresa.jpg", alt: "surpresa" as const, className: "hidden sm:mt-6 sm:block" },
 ];
 
-const DIF_EMOJIS = ["✏️", "🎧", "🛡️"];
-const CARD_EMOJIS_COMO = ["💬", "📝", "🎧"];
+const DIF_ICONS = [Pencil, Headphones, Shield];
+const ICONS_COMO = [MessageCircle, FileText, Headphones];
 
 export default async function HomePage() {
   const d = getDict(await getLocale());
@@ -85,17 +86,18 @@ export default async function HomePage() {
             </div>
 
             <div className="mt-8 grid gap-3 text-left sm:grid-cols-3">
-              {d.landing.difs.map((dif, i) => (
-                <div key={dif.t} className="card flex items-start gap-3 p-4">
-                  <span className="text-xl" aria-hidden>
-                    {DIF_EMOJIS[i]}
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-ink">{dif.t}</p>
-                    <p className="text-xs leading-snug text-ink/55">{dif.x}</p>
+              {d.landing.difs.map((dif, i) => {
+                const Icon = DIF_ICONS[i];
+                return (
+                  <div key={dif.t} className="card flex items-start gap-3 p-4">
+                    <Icon className="h-5 w-5 shrink-0 text-wine-600" aria-hidden />
+                    <div>
+                      <p className="text-sm font-semibold text-ink">{dif.t}</p>
+                      <p className="text-xs leading-snug text-ink/55">{dif.x}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -109,22 +111,23 @@ export default async function HomePage() {
             </div>
 
             <div className="mt-12 grid gap-6 md:grid-cols-3">
-              {d.landing.como.passos.map((s, i) => (
-                <div key={s.t} className="relative">
-                  <div className="card h-full p-6">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-wine-600 text-lg font-bold text-white">
-                      {i + 1}
+              {d.landing.como.passos.map((s, i) => {
+                const Icon = ICONS_COMO[i];
+                return (
+                  <div key={s.t} className="relative">
+                    <div className="card h-full p-6">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-wine-600 text-lg font-bold text-white">
+                        {i + 1}
+                      </div>
+                      <h3 className="mt-4 flex items-center gap-2 font-serif text-xl text-ink">
+                        <Icon className="h-5 w-5 shrink-0 text-wine-600" aria-hidden />
+                        {s.t}
+                      </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-ink/60">{s.x}</p>
                     </div>
-                    <h3 className="mt-4 font-serif text-xl text-ink">
-                      <span className="mr-1.5" aria-hidden>
-                        {CARD_EMOJIS_COMO[i]}
-                      </span>
-                      {s.t}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-ink/60">{s.x}</p>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>

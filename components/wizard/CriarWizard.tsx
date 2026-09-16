@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Users } from "lucide-react";
 import { OCCASIONS, getOccasion } from "@/lib/occasions";
 import { MUSIC_STYLES, VOCALS, getStyle, type VocalGender } from "@/lib/music-styles";
 import { useDraft } from "@/lib/draft";
@@ -161,7 +162,7 @@ export function CriarWizard() {
                   {items.map((o) => (
                     <OptionCard
                       key={o.slug}
-                      emoji={o.emoji}
+                      icon={o.icon}
                       label={o.label}
                       description={o.tagline}
                       active={draft.occasion === o.slug}
@@ -365,7 +366,7 @@ export function CriarWizard() {
                     </span>
                   )}
                   <OptionCard
-                    emoji={s.emoji}
+                    icon={s.icon}
                     label={s.label}
                     description={s.description}
                     active={draft.styleId === s.id}
@@ -381,7 +382,7 @@ export function CriarWizard() {
               {vocals.map((v) => (
                 <OptionCard
                   key={v.id}
-                  emoji={v.emoji}
+                  icon={v.icon}
                   label={v.label}
                   description={v.description}
                   active={draft.vocal === v.id}
@@ -454,21 +455,23 @@ export function CriarWizard() {
 
         <div className="rounded-2xl bg-wine-50/60 p-4 text-sm">
           <p className="mb-2 font-medium text-ink">{d.wizard.s4.resumo}</p>
-          <ul className="space-y-1 text-ink/65">
-            <li>
-              {occasion.emoji} {occasion.label}
+          <ul className="space-y-1.5 text-ink/65">
+            <li className="flex items-center gap-2">
+              <occasion.icon className="h-4 w-4 shrink-0 text-wine-600" aria-hidden />
+              {occasion.label}
               {draft.relationship ? ` · ${draft.relationship}` : ""}
             </li>
-            <li>
-              🎤{" "}
+            <li className="flex items-center gap-2">
+              <Users className="h-4 w-4 shrink-0 text-wine-600" aria-hidden />
               {fmt(d.wizard.s4.resumoPara, {
                 para: draft.recipientName || "—",
                 de: draft.senderName || "—",
               })}
             </li>
             {style && (
-              <li>
-                {style.emoji} {style.label} · {vocals.find((v) => v.id === draft.vocal)?.label}
+              <li className="flex items-center gap-2">
+                <style.icon className="h-4 w-4 shrink-0 text-wine-600" aria-hidden />
+                {style.label} · {vocals.find((v) => v.id === draft.vocal)?.label}
               </li>
             )}
           </ul>

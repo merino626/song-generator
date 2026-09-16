@@ -105,7 +105,7 @@ export default async function AbusoPage({ searchParams }: { searchParams: Promis
       {/* Suspeitos */}
       <h2 className="mt-10 font-serif text-xl text-ink">Suspeitos</h2>
       {suspects.length === 0 && !erro && (
-        <div className="card mt-3 p-8 text-center text-ink/50">Nada suspeito no período. 🎉</div>
+        <div className="card mt-3 p-8 text-center text-ink/50">Nada suspeito no período.</div>
       )}
 
       <div className="mt-3 space-y-3">

@@ -1,9 +1,30 @@
+import {
+  Guitar,
+  PartyPopper,
+  Feather,
+  Heart,
+  Sun,
+  Music2,
+  Music3,
+  Music4,
+  Mic,
+  Flame,
+  Volume2,
+  Headphones,
+  Star,
+  Moon,
+  Venus,
+  Mars,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+
 /** Estilos musicais oferecidos. `prompt` é o que vai pro gerador (tags da Suno). */
 
 export type MusicStyle = {
   id: string;
   label: string;
-  emoji: string;
+  icon: LucideIcon;
   description: string;
   /** Tags enviadas ao motor de música (instrumentação, andamento) */
   prompt: string;
@@ -25,7 +46,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "sertanejo-romantico",
     label: "Sertanejo romântico",
-    emoji: "🤠",
+    icon: Guitar,
     description: "Viola, emoção e aquele refrão que gruda",
     prompt: "sertanejo romântico brasileiro, viola caipira, arranjo emotivo",
     lyricGuidance:
@@ -34,7 +55,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "sertanejo-animado",
     label: "Sertanejo animado",
-    emoji: "🎉",
+    icon: PartyPopper,
     description: "Modão de festa, pra cantar junto",
     prompt: "sertanejo universitário animado, festa, sanfona e guitarra",
     lyricGuidance:
@@ -43,7 +64,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "mpb-acustico",
     label: "MPB acústico",
-    emoji: "🎸",
+    icon: Feather,
     description: "Violão, voz e letra que toca fundo",
     prompt: "MPB acústica, violão dedilhado, intimista, brasileira",
     lyricGuidance:
@@ -52,7 +73,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "pop-romantico",
     label: "Pop romântico",
-    emoji: "💗",
+    icon: Heart,
     description: "Moderno, radiofônico e emocionante",
     prompt: "pop romântico brasileiro, piano e cordas, produção moderna",
     lyricGuidance:
@@ -61,7 +82,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "pop-alegre",
     label: "Pop alegre",
-    emoji: "☀️",
+    icon: Sun,
     description: "Animado, pra celebrar em grande estilo",
     prompt: "pop brasileiro alegre e animado, palmas, energia de celebração",
     lyricGuidance:
@@ -70,7 +91,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "pagode-romantico",
     label: "Pagode",
-    emoji: "🥁",
+    icon: Music2,
     description: "Cavaquinho, suingue e romance",
     prompt: "pagode romântico, cavaquinho e percussão, suingue brasileiro",
     lyricGuidance:
@@ -79,7 +100,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "samba",
     label: "Samba",
-    emoji: "🎺",
+    icon: Music3,
     description: "Ginga brasileira do começo ao fim",
     prompt: "samba brasileiro, cavaquinho, pandeiro, sopros",
     lyricGuidance:
@@ -88,10 +109,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "forro",
     label: "Forró",
-    // Era 🪗 (U+1FA97, acordeão). Os bytes estavam corretos, mas é Emoji 14.0
-    // (2021) e a fonte do Windows 10 não tem o glifo — aparecia como quadrado.
-    // Único emoji do projeto acima de Emoji 4.0; os demais são universais.
-    emoji: "💃",
+    icon: Music4,
     description: "Sanfona, zabumba e pé de serra",
     prompt: "forró pé de serra, sanfona, zabumba e triângulo",
     lyricGuidance:
@@ -100,7 +118,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "rock-classico",
     label: "Rock",
-    emoji: "🎤",
+    icon: Mic,
     description: "Guitarras e refrão pra cantar gritando",
     prompt: "rock brasileiro, guitarras marcantes, refrão anthem",
     lyricGuidance:
@@ -109,7 +127,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "rock-comico",
     label: "Rock cômico",
-    emoji: "🤘",
+    icon: Flame,
     description: "Guitarra pesada com letra debochada",
     prompt: "rock cômico e debochado, guitarras, vocal teatral e caricato",
     lyricGuidance:
@@ -118,7 +136,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "funk-zoeira",
     label: "Funk zoeira",
-    emoji: "🔊",
+    icon: Volume2,
     description: "Batida chiclete pra zoar geral",
     prompt: "funk brasileiro divertido, batida marcante, refrão chiclete",
     lyricGuidance:
@@ -127,7 +145,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "rap-roast",
     label: "Rap / Roast",
-    emoji: "🎧",
+    icon: Headphones,
     description: "Rimas afiadas na medida da zoeira",
     prompt: "rap brasileiro bem-humorado, beat marcante, rimas afiadas",
     lyricGuidance:
@@ -136,7 +154,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "gospel",
     label: "Gospel",
-    emoji: "🙏",
+    icon: Star,
     description: "Fé, gratidão e emoção",
     prompt: "gospel brasileiro, piano e coral, emocionante",
     lyricGuidance:
@@ -145,7 +163,7 @@ export const MUSIC_STYLES: MusicStyle[] = [
   {
     id: "cancao-de-ninar",
     label: "Canção de ninar",
-    emoji: "🌙",
+    icon: Moon,
     description: "Suave, delicada, pra embalar o sono",
     prompt: "canção de ninar suave, caixinha de música, delicada",
     lyricGuidance:
@@ -159,8 +177,8 @@ export function getStyle(id: string | null | undefined): MusicStyle | undefined 
 
 export type VocalGender = "feminino" | "masculino" | "dueto";
 
-export const VOCALS: { id: VocalGender; label: string; emoji: string; description: string }[] = [
-  { id: "feminino", label: "Voz feminina", emoji: "👩‍🎤", description: "Suave e marcante" },
-  { id: "masculino", label: "Voz masculina", emoji: "👨‍🎤", description: "Grave e envolvente" },
-  { id: "dueto", label: "Dueto", emoji: "👫", description: "As duas vozes juntas" },
+export const VOCALS: { id: VocalGender; label: string; icon: LucideIcon; description: string }[] = [
+  { id: "feminino", label: "Voz feminina", icon: Venus, description: "Suave e marcante" },
+  { id: "masculino", label: "Voz masculina", icon: Mars, description: "Grave e envolvente" },
+  { id: "dueto", label: "Dueto", icon: Users, description: "As duas vozes juntas" },
 ];

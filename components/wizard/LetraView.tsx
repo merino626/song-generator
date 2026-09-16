@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Music, Zap, Shield } from "lucide-react";
 import { useDraft, type Draft } from "@/lib/draft";
 import { getOccasion } from "@/lib/occasions";
 import { getStyle, VOCALS } from "@/lib/music-styles";
@@ -198,8 +199,9 @@ export function LetraView() {
       {/* Letra */}
       <div className="card mt-5 overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-wine-100 bg-wine-50/40 px-5 py-3.5">
-          <div className="min-w-0 text-sm text-ink/60">
-            {occasion?.emoji} {occasion?.label}
+          <div className="flex min-w-0 items-center gap-1.5 text-sm text-ink/60">
+            {occasion && <occasion.icon className="h-4 w-4 shrink-0 text-wine-600" aria-hidden />}
+            {occasion?.label}
             {style ? ` · ${style.label}` : ""}
             {draft.vocal ? ` · ${locVocal(d, VOCALS.find((v) => v.id === draft.vocal)!).label}` : ""}
           </div>
@@ -256,15 +258,18 @@ export function LetraView() {
       </div>
 
       <div className="mt-10 grid gap-3 sm:grid-cols-3">
-        {d.letra.cards.map((c, i) => (
-          <div key={c.t} className="card flex items-start gap-3 p-4">
-            <span aria-hidden>{["🎼", "⚡", "🛡️"][i]}</span>
-            <div>
-              <p className="text-sm font-semibold text-ink">{c.t}</p>
-              <p className="text-xs leading-snug text-ink/55">{c.x}</p>
+        {d.letra.cards.map((c, i) => {
+          const Icon = [Music, Zap, Shield][i];
+          return (
+            <div key={c.t} className="card flex items-start gap-3 p-4">
+              <Icon className="h-5 w-5 shrink-0 text-wine-600" aria-hidden />
+              <div>
+                <p className="text-sm font-semibold text-ink">{c.t}</p>
+                <p className="text-xs leading-snug text-ink/55">{c.x}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </main>
   );

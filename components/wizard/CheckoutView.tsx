@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Shield, Zap, Gift } from "lucide-react";
 import { useDraft } from "@/lib/draft";
 import { PLANS, formatBRL, totalCents, type PlanId, type UpsellId } from "@/lib/pricing";
 import { getOccasion } from "@/lib/occasions";
@@ -116,12 +117,12 @@ export function CheckoutView() {
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
                   <span
-                    className={`flex h-10 w-10 items-center justify-center rounded-full text-lg ${
+                    className={`flex h-10 w-10 items-center justify-center rounded-full ${
                       active ? "bg-wine-600 text-white" : "bg-wine-50 text-wine-600"
                     }`}
                     aria-hidden
                   >
-                    {p.emoji}
+                    <p.icon className="h-5 w-5" />
                   </span>
                   <div>
                     <p className="font-bold text-ink">{p.name}</p>
@@ -130,7 +131,7 @@ export function CheckoutView() {
                 </div>
                 {p.highlight && (
                   <span className="shrink-0 rounded-full bg-wine-600 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
-                    🔥 {p.highlight}
+                    {p.highlight}
                   </span>
                 )}
               </div>
@@ -169,8 +170,9 @@ export function CheckoutView() {
         <p className="text-sm font-semibold text-ink">{d.checkout.resumo}</p>
         <ul className="mt-3 space-y-2 text-sm">
           <li className="flex justify-between gap-4 text-ink/70">
-            <span>
-              {occasion?.emoji} {fmt(d.checkout.musicaPara, { nome: draft.recipientName || "—" })}
+            <span className="inline-flex items-center gap-1.5">
+              {occasion && <occasion.icon className="h-4 w-4 shrink-0 text-wine-600" aria-hidden />}
+              {fmt(d.checkout.musicaPara, { nome: draft.recipientName || "—" })}
             </span>
             <span className="whitespace-nowrap">{formatBRL(PLANS.find((p) => p.id === plan)!.priceCents)}</span>
           </li>
@@ -197,15 +199,16 @@ export function CheckoutView() {
       </div>
 
       <div className="mt-10 grid gap-3 sm:grid-cols-3">
-        {d.checkout.cards.map((c, i) => (
-          <div key={c.t} className="card p-4 text-center">
-            <div className="text-xl" aria-hidden>
-              {["🛡️", "⚡", "🎁"][i]}
+        {d.checkout.cards.map((c, i) => {
+          const Icon = [Shield, Zap, Gift][i];
+          return (
+            <div key={c.t} className="card p-4 text-center">
+              <Icon className="mx-auto h-5 w-5 text-wine-600" aria-hidden />
+              <p className="mt-1.5 text-sm font-semibold text-ink">{c.t}</p>
+              <p className="mt-1 text-xs leading-snug text-ink/55">{c.x}</p>
             </div>
-            <p className="mt-1.5 text-sm font-semibold text-ink">{c.t}</p>
-            <p className="mt-1 text-xs leading-snug text-ink/55">{c.x}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </main>
   );

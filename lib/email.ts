@@ -93,7 +93,7 @@ export function emailPagamentoConfirmado(pedido: {
   const url = `${siteUrl()}/pedido/${pedido.public_token}`;
   return {
     para: pedido.customer_email,
-    assunto: "Pagamento confirmado — sua música já está sendo gravada 🎵",
+    assunto: "Pagamento confirmado — sua música já está sendo gravada",
     html: layout(
       "Recebemos seu pagamento!",
       `<p style="margin:0 0 12px;font-size:15px;line-height:1.6">
@@ -150,7 +150,7 @@ export function emailMusicaPronta(pedido: {
   const url = `${siteUrl()}/pedido/${pedido.public_token}`;
   return {
     para: pedido.customer_email,
-    assunto: `Sua música ficou pronta 🎧 ${pedido.title ? `— ${pedido.title}` : ""}`.trim(),
+    assunto: `Sua música ficou pronta ${pedido.title ? `— ${pedido.title}` : ""}`.trim(),
     html: layout(
       "Sua música está pronta!",
       `<p style="margin:0 0 12px;font-size:15px;line-height:1.6">

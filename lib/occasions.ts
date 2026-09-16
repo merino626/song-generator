@@ -1,3 +1,5 @@
+import { Heart, Cake, Laugh, Gem, Flower2, Flower, Fish, Baby, Handshake, GraduationCap, Bird, Sparkles, type LucideIcon } from "lucide-react";
+
 /**
  * Registry de ocasiões — o coração do produto.
  *
@@ -23,7 +25,7 @@ export type OccasionSlug =
 export type Occasion = {
   slug: OccasionSlug;
   label: string;
-  emoji: string;
+  icon: LucideIcon;
   /** Frase curta no card de seleção */
   tagline: string;
   /** Agrupamento visual na landing/wizard */
@@ -49,7 +51,7 @@ export const OCCASIONS: Occasion[] = [
   {
     slug: "declaracao",
     label: "Declaração de amor",
-    emoji: "❤️",
+    icon: Heart,
     tagline: "Diga o que o coração não consegue falar",
     group: "amor",
     recipientLabel: "Para quem é a declaração?",
@@ -65,7 +67,7 @@ export const OCCASIONS: Occasion[] = [
   {
     slug: "aniversario",
     label: "Aniversário",
-    emoji: "🎂",
+    icon: Cake,
     tagline: "Um parabéns que ninguém esquece",
     group: "celebracao",
     recipientLabel: "Quem está fazendo aniversário?",
@@ -81,7 +83,7 @@ export const OCCASIONS: Occasion[] = [
   {
     slug: "zoacao",
     label: "Zoação / Engraçada",
-    emoji: "😂",
+    icon: Laugh,
     tagline: "Pra rir muito — e ainda emocionar no final",
     group: "diversao",
     recipientLabel: "Quem é a vítima?",
@@ -97,7 +99,7 @@ export const OCCASIONS: Occasion[] = [
   {
     slug: "casamento",
     label: "Casamento / Bodas",
-    emoji: "💍",
+    icon: Gem,
     tagline: "A trilha sonora do grande dia",
     group: "amor",
     recipientLabel: "Para quem é a música?",
@@ -113,7 +115,7 @@ export const OCCASIONS: Occasion[] = [
   {
     slug: "pedido-namoro",
     label: "Pedido de namoro",
-    emoji: "💐",
+    icon: Flower2,
     tagline: "Um pedido impossível de recusar",
     group: "amor",
     recipientLabel: "Para quem é o pedido?",
@@ -128,7 +130,7 @@ export const OCCASIONS: Occasion[] = [
   {
     slug: "maes",
     label: "Dia das Mães",
-    emoji: "🌷",
+    icon: Flower,
     tagline: "O presente que ela vai guardar pra sempre",
     group: "familia",
     recipientLabel: "Para qual mãe é a música?",
@@ -143,7 +145,7 @@ export const OCCASIONS: Occasion[] = [
   {
     slug: "pais",
     label: "Dia dos Pais",
-    emoji: "🎣",
+    icon: Fish,
     tagline: "Pra aquele que nunca pede nada",
     group: "familia",
     recipientLabel: "Para qual pai é a música?",
@@ -158,7 +160,7 @@ export const OCCASIONS: Occasion[] = [
   {
     slug: "nascimento",
     label: "Nascimento de filho(a)",
-    emoji: "👶",
+    icon: Baby,
     tagline: "A primeira canção da vida dele(a)",
     group: "familia",
     recipientLabel: "Qual o nome do bebê?",
@@ -173,7 +175,7 @@ export const OCCASIONS: Occasion[] = [
   {
     slug: "amizade",
     label: "Amizade",
-    emoji: "🤝",
+    icon: Handshake,
     tagline: "Pra quem sempre esteve lá",
     group: "celebracao",
     recipientLabel: "Para qual amigo(a)?",
@@ -188,7 +190,7 @@ export const OCCASIONS: Occasion[] = [
   {
     slug: "formatura",
     label: "Formatura",
-    emoji: "🎓",
+    icon: GraduationCap,
     tagline: "A conquista merece trilha sonora",
     group: "celebracao",
     recipientLabel: "Quem está se formando?",
@@ -203,7 +205,7 @@ export const OCCASIONS: Occasion[] = [
   {
     slug: "homenagem",
     label: "Homenagem",
-    emoji: "🕊️",
+    icon: Bird,
     tagline: "Eternize alguém especial em música",
     group: "familia",
     recipientLabel: "Quem você quer homenagear?",
@@ -218,7 +220,7 @@ export const OCCASIONS: Occasion[] = [
   {
     slug: "outra",
     label: "Outra ocasião",
-    emoji: "✨",
+    icon: Sparkles,
     tagline: "Conte a sua ideia — a gente compõe",
     group: "celebracao",
     recipientLabel: "Para quem é a música?",

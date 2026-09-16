@@ -20,9 +20,7 @@ export async function OccasionGrid({ limit }: { limit?: number }) {
           href={`/criar?ocasiao=${o.slug}`}
           className="group card flex flex-col gap-1.5 p-4 transition hover:-translate-y-0.5 hover:border-wine-300 hover:shadow-md"
         >
-          <span className="text-2xl" aria-hidden>
-            {o.emoji}
-          </span>
+          <o.icon className="h-6 w-6 text-wine-600" aria-hidden />
           <span className="font-medium leading-tight text-ink">{o.label}</span>
           <span className="text-xs leading-snug text-ink/50">{o.tagline}</span>
           <span className="mt-1 text-xs font-medium text-wine-600 opacity-0 transition group-hover:opacity-100">

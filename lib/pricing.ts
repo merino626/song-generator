@@ -1,3 +1,5 @@
+import { Zap, Clock, Video, Mic, type LucideIcon } from "lucide-react";
+
 /** Planos e upsells. Valores em centavos pra evitar float. */
 
 export type PlanId = "standard" | "priority";
@@ -5,7 +7,7 @@ export type PlanId = "standard" | "priority";
 export type Plan = {
   id: PlanId;
   name: string;
-  emoji: string;
+  icon: LucideIcon;
   priceCents: number;
   /** Preço "de" (âncora) exibido riscado */
   anchorCents: number;
@@ -36,7 +38,7 @@ export const PLANS: Plan[] = [
   {
     id: "priority",
     name: "Prioritária",
-    emoji: "⚡",
+    icon: Zap,
     priceCents: 999,
     anchorCents: 2490,
     deliveryLabel: "Pronta em minutos, com prazo garantido",
@@ -52,7 +54,7 @@ export const PLANS: Plan[] = [
   {
     id: "standard",
     name: "Padrão",
-    emoji: "🕒",
+    icon: Clock,
     priceCents: 599,
     anchorCents: 1490,
     deliveryLabel: "Pronta em minutos",
@@ -70,7 +72,7 @@ export type UpsellId = "video" | "karaoke";
 export type Upsell = {
   id: UpsellId;
   name: string;
-  emoji: string;
+  icon: LucideIcon;
   priceCents: number;
   description: string;
   benefits: string[];
@@ -80,7 +82,7 @@ export const UPSELLS: Upsell[] = [
   {
     id: "video",
     name: "Vídeo com as suas fotos",
-    emoji: "🎥",
+    icon: Video,
     priceCents: 4790,
     description: "Transforme a música num vídeo emocionante pra postar e compartilhar",
     benefits: ["Slideshow com as fotos de vocês", "Letra sincronizada na tela", "Formato pronto pra status e redes"],
@@ -88,7 +90,7 @@ export const UPSELLS: Upsell[] = [
   {
     id: "karaoke",
     name: "Versão Karaokê",
-    emoji: "🎤",
+    icon: Mic,
     priceCents: 3990,
     description: "Pra cantar junto na hora da surpresa",
     benefits: ["Vídeo com a letra sincronizada", "Versão instrumental exclusiva (sem voz)", "Perfeito pra festa"],

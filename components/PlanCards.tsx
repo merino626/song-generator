@@ -21,14 +21,12 @@ export async function PlanCards({ cta = true }: { cta?: boolean }) {
             >
               {plan.highlight && (
                 <span className="absolute right-5 top-5 rounded-full bg-wine-600 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
-                  🔥 {plan.highlight}
+                  {plan.highlight}
                 </span>
               )}
 
               <div className="flex items-center gap-2">
-                <span className="text-xl" aria-hidden>
-                  {plan.emoji}
-                </span>
+                <plan.icon className="h-5 w-5 text-wine-600" aria-hidden />
                 <h3 className="font-semibold text-ink">{plan.name}</h3>
               </div>
 

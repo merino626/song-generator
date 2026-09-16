@@ -64,7 +64,7 @@ function Espera({ desde, ate, plano }: { desde: string; ate?: string | null; pla
   return (
     <span className={estourou && !ate ? "font-semibold text-wine-700" : ""}>
       {ate ? "levou" : "esperando há"} {duracao(decorrido)}
-      {estourou && !ate ? " ⚠ atrasado" : ""}
+      {estourou && !ate ? " · atrasado" : ""}
     </span>
   );
 }
@@ -147,7 +147,7 @@ export default async function FilaPage({ searchParams }: { searchParams: Promise
 
       {!configError && orders.length === 0 && (
         <div className="card mt-6 p-8 text-center text-ink/50">
-          {aba === "pendentes" ? "Nada pendente — o robô está dando conta de tudo. 🎉" : "Nenhum pedido nesta aba."}
+          {aba === "pendentes" ? "Nada pendente — o robô está dando conta de tudo." : "Nenhum pedido nesta aba."}
         </div>
       )}
 
@@ -160,11 +160,12 @@ export default async function FilaPage({ searchParams }: { searchParams: Promise
             <article key={o.id} className={`card p-5 ${manual ? "border-wine-400" : ""}`}>
               <header className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="font-semibold text-ink">
-                    {occasion?.emoji} {o.title || `Música para ${o.recipient_name}`}
+                  <p className="flex items-center gap-1.5 font-semibold text-ink">
+                    {occasion && <occasion.icon className="h-4 w-4 shrink-0 text-wine-600" aria-hidden />}
+                    {o.title || `Música para ${o.recipient_name}`}
                   </p>
                   <p className="mt-0.5 text-xs text-ink/50">
-                    {occasion?.label} · {style?.label} · {o.vocal} · {o.plan === "priority" ? "⚡ prioritário" : "padrão"}
+                    {occasion?.label} · {style?.label} · {o.vocal} · {o.plan === "priority" ? "prioritário" : "padrão"}
                   </p>
                   <p className="mt-1 text-xs text-ink/45">
                     {o.customer_email} {o.customer_phone ? `· ${o.customer_phone}` : ""}
@@ -195,9 +196,9 @@ export default async function FilaPage({ searchParams }: { searchParams: Promise
                     {
                       manual_review: "tratativa manual",
                       producing_manual: "operador assumiu",
-                      producing_robot: "🤖 robô rodando",
-                      ready: "✓ pronta",
-                      delivered: "✓ entregue",
+                      producing_robot: "robô rodando",
+                      ready: "pronta",
+                      delivered: "entregue",
                       paid: "pago",
                       awaiting_payment: "aguardando pagamento",
                       lyrics_ready: "letra pronta",

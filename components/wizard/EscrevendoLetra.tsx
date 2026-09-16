@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Frown } from "lucide-react";
 import { useDict } from "@/components/LocaleProvider";
 import { fmt } from "@/lib/i18n";
 
@@ -42,7 +43,7 @@ export function EscrevendoLetra({ erro, onTentarDeNovo }: { erro: string | null;
   if (erro) {
     return (
       <main className="mx-auto max-w-md px-4 py-24 text-center sm:px-6">
-        <p className="text-3xl">😕</p>
+        <Frown className="mx-auto h-9 w-9 text-wine-400" aria-hidden />
         <h1 className="mt-4 font-serif text-2xl text-ink">{d.escrevendo.erroTitulo}</h1>
         <p className="mt-2 text-sm leading-relaxed text-ink/60">{erro}</p>
         <button onClick={onTentarDeNovo} className="btn-primary mt-6">
